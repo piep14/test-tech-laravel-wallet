@@ -72,6 +72,7 @@
                     </div>
                 </form>
             </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-5">
                 <h2 class="text-xl font-bold mb-6">@lang('Transactions history')</h2>
                 <table class="w-full text-sm text-left text-gray-500 border border-gray-200">
@@ -122,6 +123,39 @@
                                 $transaction->type->isCredit() ? 'text-green-500' : 'text-red-500',
                             ])>
                                 {{Number::currencyCents($transaction->type->isCredit() ? $transaction->amount : -$transaction->amount)}}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-5">
+                <h2 class="text-xl font-bold mb-6">@lang('Recurring transfers')</h2>
+                <table class="w-full text-sm text-left text-gray-500 border border-gray-200">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            @lang('Reason')
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            @lang('Amount')
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($recurringTransfers as $recurringTransfer)
+                        <tr class="bg-white border-b">
+
+                            <td class="px-6 py-4">
+                                {{$recurringTransfer->reason}}
+                            </td>
+
+                            <td @class([
+                                'px-6 py-4',
+                                $transaction->type->isCredit() ? 'text-green-500' : 'text-red-500',
+                            ])>
+                                {{Number::currencyCents($recurringTransfer->amount) }}
                             </td>
                         </tr>
                     @endforeach

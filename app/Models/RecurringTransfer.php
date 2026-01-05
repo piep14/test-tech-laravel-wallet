@@ -19,6 +19,14 @@ class RecurringTransfer extends Model
         'reason'
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date:Y-m-d',
+            'end_date' => 'date',
+        ];
+    }
+
     /**
      * @return BelongsTo<Wallet>
      */
