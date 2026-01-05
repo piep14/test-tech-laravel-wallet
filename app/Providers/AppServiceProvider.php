@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\Wallet;
+use App\Observers\WalletObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -13,14 +15,18 @@ use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+    }
 
     public function boot(): void
     {
+        Wallet::observe(WalletObserver::class);
+
         Number::useCurrency('EUR');
 
         Number::macro('currencyCents', function (int|float $number, string $in = '', ?string $locale = null) {
-            return Number::currency((int) $number / 100, $in, $locale);
+            return Number::currency((int)$number / 100, $in, $locale);
         });
 
         Password::defaults(function () {

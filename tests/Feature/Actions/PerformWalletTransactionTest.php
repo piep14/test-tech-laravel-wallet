@@ -5,10 +5,13 @@ declare(strict_types=1);
 use App\Actions\PerformWalletTransaction;
 use App\Enums\WalletTransactionType;
 use App\Exceptions\InsufficientBalance;
+use App\Models\User;
 use App\Models\Wallet;
-
+use App\Notifications\WalletUnder10EuroNotification;
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
+
+use Illuminate\Support\Facades\Notification;
 
 beforeEach(function () {
     $this->action = app(PerformWalletTransaction::class);
@@ -87,4 +90,33 @@ test('force a debit transaction when balance is insufficient', function () {
         'type' => WalletTransactionType::DEBIT,
         'reason' => 'test',
     ]);
+});
+
+test('sends a notification email when wallet balance goes below 10€', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+    $wallet = Wallet::factory()->for($user)->balance(1000)->create();
+
+    $wallet->update([
+        'balance' => 500
+    ]);
+
+    Notification::assertSentTo(
+        $user,
+        WalletUnder10EuroNotification::class,
+    );
+});
+
+test('does not send notification email when wallet balance is more than 10€', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+    $wallet = Wallet::factory()->for($user)->balance(2000)->create();
+
+    $wallet->update([
+        'balance' => 1500
+    ]);
+
+    Notification::assertNothingSent();
 });

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use App\Models\User;
 use App\Models\Wallet;
-
+use Illuminate\Support\Collection;
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 test('dashboard page is displayed', function () {
     $user = User::factory()->has(Wallet::factory()->richChillGuy())->create();
@@ -66,4 +67,17 @@ test('cannot send money to a friend with insufficient balance', function () {
         ->assertSessionHas('money-sent-status', 'insufficient-balance')
         ->assertSessionHas('money-sent-recipient-name', $recipient->name)
         ->assertSessionHas('money-sent-amount', 10_00);
+});
+
+it('shows dashboard with empty transactions and zero balance when its new user', function () {
+    $user = User::factory()->create();
+
+    actingAs($user);
+
+    $response = get(route('dashboard'));
+
+    $response->assertOk()
+        ->assertViewIs('dashboard')
+        ->assertViewHas('transactions', fn ($transactions) => $transactions instanceof Collection && $transactions->isEmpty())
+        ->assertViewHas('balance', 0);
 });
